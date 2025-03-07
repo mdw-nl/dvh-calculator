@@ -1,4 +1,3 @@
 pydicom>=3.0.1
 dicompyler-core>=0.5.7 #This package does not exist yet on PyPi! Build it from source.
-matplotlib
 dicom

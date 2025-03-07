@@ -7,15 +7,12 @@ from dicompylercore import dicomparser, dvhcalc
 from .check_jsonable import log_unjsonable
 
 def batchProcessPlans(dicomDb, folderPath):
-    # loop over all patients
     for ptid in dicomDb.getPatientIds():
         patient = dicomDb.getPatient(ptid)
-        # get all plans for patients
         for planUid in patient.getRTPlans():
             rtplan = patient.getRTPlan(planUid)
             rtstruct = patient.getStructForPlan(rtplan)
             rtdose = patient.getDoseForPlan(rtplan)
-            # process DVHs
             try:
                 print('processing %s' % planUid)
                 process_and_save_dvh(folderPath, planUid, rtplan, rtdose,
@@ -52,16 +49,13 @@ def get_dvh_dict(planUid, rtplan, rtdose, rtstruct):
 
 
 def processDvhForSet(rtStruct, rtDose, rtPlan):
-    # Retrieve all structures
     structures = dicomparser.DicomParser(rtStruct.getFileLocation()).GetStructures()
     
     output = list()
 
-    # loop over structures
     for i in structures:
         structure = structures[i]
         if not structure["empty"]:
-            # now calculate DVH
             try:
                 print('doing struct {} of {}...'.format(i, len(structures)))
                 calcdvh = dvhcalc.get_dvh(rtStruct.getFileLocation(),

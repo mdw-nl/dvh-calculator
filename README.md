@@ -1,13 +1,10 @@
-# PyDicomDVH
+# DVH Calculator
 
-all the required dependancies can be found in ./resources/requirements.txtk
-to demo the functionality of the lib start jupyter notebook.
-add a complete DICOM CT + RTSTRUCT + RTPLAN + RTDOSE fileset to the ./resources/dicom folder and run the DemoParseDvhForSinglePlan.ipynb
+The DVH Calculator calculates DVH curves and configurable DVH parameters based on DICOM CT, RTSTRUCT, RTPLAN and RTDOSE files.
 
-## PyDicomHeaderExport
+## Run tests
 
-**TODO** export to own repository
+* Add DICOM data for one patient in the tests/resources/dicom folder
+* Run ```python -m unittest tests/test.p```
 
-## PyDicomNBCA pipeline
 
-**TODO** export to own repository

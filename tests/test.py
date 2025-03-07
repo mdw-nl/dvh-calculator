@@ -1,16 +1,23 @@
+import sys
 import unittest
 from dvhcalculator import DvhCurve, DicomDatabase, dvh_extractor
 import pydicom
 import json
 import os
 from dicompylercore import dicomparser, dvhcalc
-import matplotlib.pyplot as plt
+import logging
+
+logger = logging.getLogger('dvhcalculator-test')
+
+logging.basicConfig(
+    format = '%(asctime)s %(module)s %(levelname)s: %(message)s',
+    level = logging.DEBUG,
+    stream = sys.stdout)
 
 class TestDvhCalculator(unittest.TestCase):
     def test_dvh_calculator(self):
-        print(os.getcwd())
 
-        dcmHeader = pydicom.dcmread('tests/resources/dicom/RP.1.2.246.352.71.5.2088656855.377051.20110920152006.dcm')
+        dcmHeader = pydicom.dcmread('tests/resources/dicom/RP.PYTIM05_PS2.dcm')
 
         dicomDb = DicomDatabase()
         dicomDb.parseFolder('./resources/dicom')
@@ -31,31 +38,30 @@ class TestDvhCalculator(unittest.TestCase):
             dvhCurves.append(DvhCurve(structure))
 
         for dvhCurve in dvhCurves:
-            dvhCurve.plot()
-            print('Dmin  = ' + str(dvhCurve.min))
-            print('Dmean = ' + str(dvhCurve.mean))
-            print('Dmax  = ' + str(dvhCurve.max))
-            print("volume= " + str(dvhCurve.volume))
-            print("color = " + str(dvhCurve.color))
-            print("plannedDose = " + str(dvhCurve.plannedDose))
-            print('D2%   = ' + str(dvhCurve.dValueRelative(2)))
-            print('V20Gy = ' + str(dvhCurve.vValue(20)))
+            logger.info('Dmin  = ' + str(dvhCurve.min))
+            logger.info('Dmean = ' + str(dvhCurve.mean))
+            logger.info('Dmax  = ' + str(dvhCurve.max))
+            logger.info("volume= " + str(dvhCurve.volume))
+            logger.info("color = " + str(dvhCurve.color))
+            logger.info("plannedDose = " + str(dvhCurve.plannedDose))
+            logger.info('D2%   = ' + str(dvhCurve.dValueRelative(2)))
+            logger.info('V20Gy = ' + str(dvhCurve.vValue(20)))
 
         tags = dcmHeader.keys()
-        for tag in tags:
-            print("%s - %s" % (tag,pydicom.datadict.keyword_for_tag(tag)))
+        # for tag in tags:
+            # logger.info("%s - %s" % (tag,pydicom.datadict.keyword_for_tag(tag)))
 
         dcmHeader[0x300c,0x60][0]
 
-        dcmHeader = pydicom.dcmread("tests/resources/dicom/RD.1.2.246.352.71.7.2088656855.452097.20110920152341.dcm")
+        dcmHeader = pydicom.dcmread("tests/resources/dicom/RD.PYTIM05_.dcm")
 
         tags = dcmHeader.keys()
-        for tag in tags:
-            print("%s - %s" % (tag,pydicom.datadict.keyword_for_tag(tag)))
+        # for tag in tags:
+            # logger.info("%s - %s" % (tag,pydicom.datadict.keyword_for_tag(tag)))
 
         dcmHeader[0x300c,0x2][0]
 
-        dcmHeader = pydicom.dcmread('tests/resources/dicom/RS.1.2.246.352.71.4.2088656855.2402030.20110920095607.dcm')
+        dcmHeader = pydicom.dcmread('tests/resources/dicom/RS.PYTIM05_.dcm')
         dcmHeader[0x3006,0x10][0][0x20,0x52].value
 
         dcmHeader
@@ -68,9 +74,10 @@ class TestDvhCalculator(unittest.TestCase):
             planUid = list(patient.getRTPlans())[0]
             
             rtplan = patient.getRTPlan(planUid)
-            print(rtplan.plannedDose)
+            logger.debug(rtplan.plannedDose)
             rtstruct = patient.getStructForPlan(rtplan)
             rtdose = patient.getDoseForPlan(rtplan)
+            logger.debug(patient)
 
         # i.e. Get a dict of structure information
         dp_rtstruct = dicomparser.DicomParser(rtstruct.getFileLocation())
@@ -85,13 +92,7 @@ class TestDvhCalculator(unittest.TestCase):
                 
                 # now calculate DVH
                 calcdvh = dvhcalc.get_dvh(rtstruct.getFileLocation(), rtdose.getFileLocation(), structureId)
-                
-                plt.plot(calcdvh.bincenters, calcdvh.counts, color=(structure['color']/255), label=structure['name'])
-                plt.title("Dose-volume histogram")
-                plt.xlabel("Dose (Gray)")
-                plt.ylabel("Volume (cc)")
-                plt.legend()
-                plt.show()
+                logger.debug(calcdvh.bincenters)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
 class DvhCurve():
@@ -50,14 +49,6 @@ class DvhCurve():
     @property
     def plannedDose(self):
         return self._plannedDose
-
-    def plot(self):
-        plt.plot(self.doseVector, self.volumeVector, label=(self.name), color = self.color/255)  # TODO implement color
-        plt.title("Dose-volume histogram")
-        plt.xlabel("Dose (Gray)")
-        plt.ylabel("Volume (cc)")
-        plt.legend()
-        plt.show()
 
     def dValue(self, limit):
         idx = (np.abs(self.volumeVector-limit)).argmin()

@@ -1,6 +1,8 @@
 import os
 import pydicom
+import logging
 
+logger = logging.getLogger(__name__)
 
 class DicomDatabase:
     def __init__(self):
@@ -128,11 +130,17 @@ class Patient:
             return None
     def getDoseForPlan(self, rtPlan):
         for myDose in self.rtdose.values():
+            logger.debug(myDose)
             if myDose.getReferencedPlanUid() == rtPlan.getUid():
-                dose = pydicom.read_file(myDose.getFileLocation())
+                logger.debug(myDose.getReferencedPlanUid())
+                dose = pydicom.dcmread(myDose.getFileLocation())
+                logger.debug(dose.get(['3004', '000a']).value)
                 if dose.get(['3004', '000a']).value == "PLAN":
                     return myDose
         return None
+
+    def __str__(self):
+        return "Patient: " + self.id + " - CT: " + str(self.countCTScans()) + " - RTStruct: " + str(self.countRTStructs()) + " - RTPlan: " + str(self.rtplan) + " - RTDose: " + str(self.rtdose)
 
 class CT:
     def __init__(self):
@@ -197,7 +205,9 @@ class RTPlan:
     
     def readHeader(self, dcmHeader):
         self.label = dcmHeader[0x300A,0x2].value
-        self.name = dcmHeader[0x300A,0x3].value
+        if ([0x300A, 0x3] in dcmHeader
+                and len(list(dcmHeader[0x300A, 0x3])) > 0):
+            self.name = dcmHeader[0x300A,0x3].value
         self.uid = dcmHeader[0x8,0x18].value
     
         # get referenced struct UID
@@ -221,6 +231,8 @@ class RTPlan:
         return self.uid
     def getFileLocation(self):
         return self.filePath
+    def __str__(self):
+        return "RTPlan: " + self.filePath + " - " + self.label + " - " + self.name + " - " + self.referencedStructUid + " - " + self.uid + " - " + self.plannedDose
 
 class RTDose:
     def __init__(self, filePath, dicomHeader):
@@ -249,3 +261,5 @@ class RTDose:
         return self.units
     def getFileLocation(self):
         return self.filePath
+    def __str__(self):
+        return "RTDose: " + self.filePath + " - " + self.type + " - " + self.units + " - " + self.referencedPlanUid
