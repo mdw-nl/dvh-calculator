@@ -1,4 +1,6 @@
 import sys
+from .dicom_concepts import DicomDatabase, Patient, RTStruct, RTPlan, RTDose, CT
+from .DvhCurve import DvhCurve
 import logging
 
 logFormatter = logging.Formatter(fmt="%(asctime)s,%(msecs)03d %(name)s %(lineno)d %(levelname)s %(message)s", datefmt='%Y-%m-%d %H:%M:%S')

@@ -20,7 +20,7 @@ class TestDvhCalculator(unittest.TestCase):
         dcmHeader = pydicom.dcmread('tests/resources/dicom/RP.PYTIM05_PS2.dcm')
 
         dicomDb = DicomDatabase()
-        dicomDb.parseFolder('./resources/dicom')
+        dicomDb.parseFolder('tests/resources/dicom')
 
         folderPath = "tests/resources/dvh_json"
         if not os.path.exists(folderPath):

@@ -1,6 +1,7 @@
 import json
 import logging
 import os.path
+from pathlib import Path
 
 from dicompylercore import dicomparser, dvhcalc
 
@@ -28,10 +29,11 @@ def batchProcessPlans(dicomDb, folderPath):
 def process_and_save_dvh(folderPath, planUid, rtplan, rtdose, rtstruct,
                          patient):
     planOut = get_dvh_dict(planUid, rtplan, rtdose, rtstruct)
-    fileName = os.path.join(folderPath + ('/%s/' % patient.getId()),
+    filePath = os.path.join(folderPath + ('/%s/' % patient.getId()),
                             '%s.json' %
                             planUid)
-    with open(fileName, 'w') as outfile:
+    os.makedirs(Path(filePath).parent, exist_ok=True)
+    with open(filePath, 'w') as outfile:
         try:
             json.dump(planOut, outfile)
         except TypeError as e:
